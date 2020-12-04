@@ -7,6 +7,12 @@ well as buying and selling times. The calculations are extremely rough on
 purpose, and there's no accounting for atmospheric density, etc. There's also no
 route planning, as this is more about single-ended trips.
 
+### Requirements
+* Python 3.9
+* TKInter
+* requests
+* bs4
+
 ### Usage
 
 Provided you've got Python3 and TKInter, you should be able to just run
