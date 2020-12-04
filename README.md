@@ -1,5 +1,4 @@
 ## SCTrader
-
 SCTrader is a _very_ simple Python script, in the scriptiest sense of the word.
 Plainly, all this code is doing is reading commodity prices from the wonderful
 https://gallog.co/ and accounts for travel distances/times between bodies as
@@ -14,7 +13,6 @@ route planning, as this is more about single-ended trips.
 * bs4
 
 ### Usage
-00000000000000000000000000000000000000000000000000000000000000000000000000000000
 Provided you've got Python3 and TKInter, you should be able to just run
 `sctrade.py` and go from there. The Refresh button makes all the requests
 you'll need until a value changes on the page, so press that once to get going.
