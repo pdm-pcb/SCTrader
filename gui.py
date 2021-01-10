@@ -4,6 +4,7 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 import enum
 import time
+from collections import OrderedDict
 
 import tkinter as tk
 from tkinter import ttk
@@ -25,9 +26,9 @@ class MaxLength(enum.Enum):
 
 
 class GUI():
-    def __init__(self, a_ship_data):
+    def __init__(self, t_ship_data):
         self.commodities_dict = dict()
-        self.ship_data = a_ship_data
+        self.ship_data = t_ship_data
 
         self.root = tk.Tk()
         self.root.title("Star Citizen Trade Routes")
@@ -55,21 +56,21 @@ class GUI():
 
         self.ship_combobox = ttk.Combobox(config_frame,
                                           values=list(self.ship_data.keys()))
-        self.ship_combobox.current(4)
+        self.ship_combobox.current(8)
         self.ship_combobox.grid(row=0, column=1, padx=5, sticky="ew")
 
         proft_label = ttk.Label(config_frame, text="Minimum Profit per Unit")
         proft_label.grid(row=1, column=0, padx=5, sticky="w")
 
         self.profit_entry = ttk.Entry(config_frame, font=custom_font)
-        self.profit_entry.insert(0, "0.5")
+        self.profit_entry.insert(0, "0.05")
         self.profit_entry.grid(row=1, column=1, padx=5, sticky="ew")
 
         buy_time_label = ttk.Label(config_frame, text="Max Buy Time (Minutes)")
         buy_time_label.grid(row=2, column=0, padx=5, pady=5, sticky="w")
 
         self.buy_time_entry = ttk.Entry(config_frame, font=custom_font)
-        self.buy_time_entry.insert(0, "10")
+        self.buy_time_entry.insert(0, "30")
         self.buy_time_entry.grid(row=2, column=1, padx=5, sticky="ew")
 
         sell_time_label = ttk.Label(config_frame,
@@ -77,7 +78,7 @@ class GUI():
         sell_time_label.grid(row=3, column=0, padx=5, sticky="w")
 
         self.sell_time_entry = ttk.Entry(config_frame, font=custom_font)
-        self.sell_time_entry.insert(0, "10")
+        self.sell_time_entry.insert(0, "30")
         self.sell_time_entry.grid(row=3, column=1, padx=5, sticky="ew")
 
         self.refresh_button = ttk.Button(config_frame, text="Refresh",
@@ -243,8 +244,9 @@ class GUI():
         self.calculate_button.configure(state="normal")
         self.populate_summary_winodw()
 
-    def summary_row_clicked(self, a_event):
-        summary_tree = a_event.widget
+    def summary_row_clicked(self, t_event):
+        summary_tree = t_event.widget
+        time_ordered_routes = list()
 
         try:
             row = summary_tree.item(summary_tree.selection()[0])
@@ -259,8 +261,6 @@ class GUI():
             self.detail_tree.delete(row)
 
         for route in routes:
-            route_tag = str(routes.index(route))
-
             travel_time = route.travel_distance / qt_speed
             travel_time = int(travel_time / 60)
             if travel_time < 1:
@@ -276,6 +276,14 @@ class GUI():
             total_time += 10  # time to fly into port, get to terminal, etc
             per_hour = round(route.total_profit() / (total_time / 60))
 
+            time_route_tuple = (per_hour, travel_time, time_unit_string, route)
+            time_ordered_routes.append(time_route_tuple)
+
+        time_ordered_routes.sort(reverse=True, key=lambda route: route[0])
+
+        for (per_hour, travel_time, time_unit_string, route) in time_ordered_routes:
+            route_tag = str(routes.index(route))
+
             self.detail_tree.insert("", "end", value=[
                 f"{route.purchase_port.name} "
                 f"({route.purchase_port.planetary_body})",
@@ -290,20 +298,20 @@ class GUI():
                 f"{route.best_case_sell}-{route.worst_case_sell}"],
                 tags=(route_tag))
 
-    def get_padded_size(self, a_text):
-        string_size = tkfont.Font().measure(a_text)
+    def get_padded_size(self, t_text):
+        string_size = tkfont.Font().measure(t_text)
         return string_size
 
-    def commodity_builder(self, a_row_data, a_list):
-        row = a_row_data[0]
-        category = a_row_data[1]
+    def commodity_builder(self, t_row_data, t_list):
+        row = t_row_data[0]
+        category = t_row_data[1]
         commodity_name = row.find(class_="header").string.strip()
         commodity_url = f"https://gallog.co{row['href']}"
 
         commodity = Commodity(commodity_name,
                               category,
                               commodity_url)
-        a_list.append(commodity)
+        t_list.append(commodity)
 
     def build_commodities_dict(self):
         url = "https://gallog.co/commodities/"

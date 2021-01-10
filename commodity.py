@@ -6,14 +6,14 @@ from route import Route, Port
 
 
 class Commodity:
-    def __init__(self, a_name, a_cateogry, a_url):
-        self.name = a_name
-        self.category = a_cateogry
+    def __init__(self, t_name, t_cateogry, t_url):
+        self.name = t_name
+        self.category = t_cateogry
         self.ports_of_purchase = list()
         self.ports_of_sale     = list()
         self.routes            = list()
 
-        page = requests.get(a_url)
+        page = requests.get(t_url)
         soup = BeautifulSoup(page.content, "html.parser")
 
         price_unit_tables = soup.find_all("table")
@@ -27,10 +27,10 @@ class Commodity:
         self.ports_of_purchase = self.build_port_list(purchase_table)
         self.ports_of_sale     = self.build_port_list(sale_table)
 
-    def build_port_list(self, a_port_table):
+    def build_port_list(self, t_port_table):
         port_list = list()
 
-        rows = a_port_table.find_all("tr")
+        rows = t_port_table.find_all("tr")
         for row in rows:
             table_data = row.find_all("td")
 
@@ -61,31 +61,31 @@ class Commodity:
 
         return port_list
 
-    def build_routes(self, a_units, a_profit_per_unit, a_buy_time, a_sell_time):
+    def build_routes(self, t_units, t_profit_per_unit, t_buy_time, t_sell_time):
         self.routes.clear()
 
         for purchase_port in self.ports_of_purchase:
-            best_case_buy = self.best_case(purchase_port, a_units)
-            worst_case_buy = self.worst_case(purchase_port, a_units)
+            best_case_buy = self.best_case(purchase_port, t_units)
+            worst_case_buy = self.worst_case(purchase_port, t_units)
 
             if best_case_buy == -1 or worst_case_buy == -1 or\
-               worst_case_buy > a_buy_time:
+               worst_case_buy > t_buy_time:
                 continue
 
             for sale_port in self.ports_of_sale:
                 profit_per_unit = sale_port.price - purchase_port.price
 
-                if profit_per_unit < a_profit_per_unit:
+                if profit_per_unit < t_profit_per_unit:
                     continue
 
-                best_case_sell = self.best_case(sale_port, a_units)
-                worst_case_sell = self.worst_case(sale_port, a_units)
+                best_case_sell = self.best_case(sale_port, t_units)
+                worst_case_sell = self.worst_case(sale_port, t_units)
 
                 if best_case_sell == -1 or worst_case_sell == -1 or\
-                   worst_case_sell > a_buy_time:
+                   worst_case_sell > t_buy_time:
                     continue
 
-                route = Route(purchase_port, sale_port, a_units,
+                route = Route(purchase_port, sale_port, t_units,
                               purchase_port.price, sale_port.price,
                               best_case_buy, best_case_sell,
                               worst_case_buy, worst_case_sell)
@@ -95,22 +95,22 @@ class Commodity:
         self.routes.sort(key=lambda route: route.total_profit(),
                          reverse=True)
 
-    def worst_case(self, a_port, a_units):
+    def worst_case(self, t_port, t_units):
         try:
             worst_case = \
-                int(a_units / a_port.refresh_per_minute)
+                int(t_units / t_port.refresh_per_minute)
         except ZeroDivisionError:
             worst_case = -1
 
         return worst_case
 
-    def best_case(self, a_port, a_units):
-        if a_port.max_inventory > a_units:
+    def best_case(self, t_port, t_units):
+        if t_port.max_inventory > t_units:
             best_case = 0
         else:
-            a_units -= a_port.max_inventory
+            t_units -= t_port.max_inventory
             try:
-                best_case = math.ceil(a_units / a_port.refresh_per_minute)
+                best_case = math.ceil(t_units / t_port.refresh_per_minute)
             except ZeroDivisionError:
                 best_case = -1
 

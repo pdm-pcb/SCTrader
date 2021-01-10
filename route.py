@@ -11,28 +11,28 @@ class Port:
 
 
 class Route:
-    def __init__(self, a_purchase_port, a_sale_port,
-                 a_units, a_buy_price, a_sell_price,
-                 a_best_case_buy, a_best_case_sell,
-                 a_worst_case_buy, a_worst_case_sell):
-        self.purchase_port = a_purchase_port
-        self.sale_port = a_sale_port
-        self.units = a_units
-        self.buy_price = a_buy_price
-        self.sell_price = a_sell_price
-        self.best_case_buy = a_best_case_buy
-        self.best_case_sell = a_best_case_sell
-        self.worst_case_buy = a_worst_case_buy
-        self.worst_case_sell = a_worst_case_sell
+    def __init__(self, t_purchase_port, t_sale_port,
+                 t_units, t_buy_price, t_sell_price,
+                 t_best_case_buy, t_best_case_sell,
+                 t_worst_case_buy, t_worst_case_sell):
+        self.purchase_port = t_purchase_port
+        self.sale_port = t_sale_port
+        self.units = t_units
+        self.buy_price = t_buy_price
+        self.sell_price = t_sell_price
+        self.best_case_buy = t_best_case_buy
+        self.best_case_sell = t_best_case_sell
+        self.worst_case_buy = t_worst_case_buy
+        self.worst_case_sell = t_worst_case_sell
 
         try:
-            purchase_system = planetary_system[a_purchase_port.planetary_body]
-            sale_system = planetary_system[a_sale_port.planetary_body]
+            purchase_system = planetary_system[t_purchase_port.planetary_body]
+            sale_system = planetary_system[t_sale_port.planetary_body]
             self.travel_distance = travel_distance[purchase_system][sale_system]
         except KeyError as ex:
             print(f"KeyError {ex}\n"
-                  f"{a_purchase_port.name} ({a_purchase_port.planetary_body})\n"
-                  f"{a_sale_port.name} ({a_sale_port.planetary_body})\n")
+                  f"{t_purchase_port.name} ({t_purchase_port.planetary_body})\n"
+                  f"{t_sale_port.name} ({t_sale_port.planetary_body})\n")
             self.travel_distance = 1
 
     def total_profit(self):
