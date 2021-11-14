@@ -39,7 +39,10 @@ class Commodity:
             port.planetary_body = table_data[0].text.strip()
             port.planetary_body = " ".join(port.planetary_body.split()[:-1])
 
-            port.name = table_data[1].string.strip()
+            if table_data[1].string == None:
+                port_name = "???"
+            else:
+                port.name = table_data[1].string.strip()
 
             try:
                 port.price = int(float(table_data[2].string.strip()) * 100)
@@ -61,8 +64,11 @@ class Commodity:
 
         return port_list
 
-    def build_routes(self, t_units, t_profit_per_unit, t_buy_time, t_sell_time):
+    def build_routes(self, t_investment, t_units, t_profit_per_unit,
+                     t_buy_time, t_sell_time):
         self.routes.clear()
+
+        units = t_units
 
         for purchase_port in self.ports_of_purchase:
             best_case_buy = self.best_case(purchase_port, t_units)
@@ -71,6 +77,12 @@ class Commodity:
             if best_case_buy == -1 or worst_case_buy == -1 or\
                worst_case_buy > t_buy_time:
                 continue
+
+            if t_units * purchase_port.price > t_investment:
+                units = int(t_investment / purchase_port.price)
+                if units <= 0:
+                    continue
+
 
             for sale_port in self.ports_of_sale:
                 profit_per_unit = sale_port.price - purchase_port.price
@@ -85,10 +97,10 @@ class Commodity:
                    worst_case_sell > t_buy_time:
                     continue
 
-                route = Route(purchase_port, sale_port, t_units,
+                route = Route(purchase_port, sale_port, units,
                               purchase_port.price, sale_port.price,
                               best_case_buy, best_case_sell,
-                              worst_case_buy, worst_case_sell)
+                              worst_case_buy, worst_case_sell, self.name)
 
                 self.routes.append(route)
 

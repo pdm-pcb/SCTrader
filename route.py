@@ -14,7 +14,7 @@ class Route:
     def __init__(self, t_purchase_port, t_sale_port,
                  t_units, t_buy_price, t_sell_price,
                  t_best_case_buy, t_best_case_sell,
-                 t_worst_case_buy, t_worst_case_sell):
+                 t_worst_case_buy, t_worst_case_sell, name):
         self.purchase_port = t_purchase_port
         self.sale_port = t_sale_port
         self.units = t_units
@@ -30,10 +30,10 @@ class Route:
             sale_system = planetary_system[t_sale_port.planetary_body]
             self.travel_distance = travel_distance[purchase_system][sale_system]
         except KeyError as ex:
-            print(f"KeyError {ex}\n"
-                  f"{t_purchase_port.name} ({t_purchase_port.planetary_body})\n"
-                  f"{t_sale_port.name} ({t_sale_port.planetary_body})\n")
             self.travel_distance = 1
+            print(f"Route KeyError {ex} for {name}\n"
+                  f"  {t_purchase_port.name} ({t_purchase_port.planetary_body})\n"
+                  f"  {t_sale_port.name} ({t_sale_port.planetary_body})\n")
 
     def total_profit(self):
         profit_per_unit = self.sell_price - self.buy_price
